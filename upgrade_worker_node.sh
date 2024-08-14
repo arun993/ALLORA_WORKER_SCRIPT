@@ -29,9 +29,9 @@ RPC_URL="https://sentries-rpc.testnet-1.testnet.allora.network/"
 
 # Step 6: Modify the placeholders in config.json
 echo "Replacing placeholders in config.json..."
-sed -i "s/YOUR_WALLET_NAME/$WALLET_NAME/" config.json
-sed -i "s/YOUR_MNEMONIC/$MNEMONIC/" config.json
-sed -i "s~YOUR_RPC_URL~$RPC_URL~" config.json
+sed -i "s/addressKeyName/$WALLET_NAME/" config.json
+sed -i "s/addressRestoreMnemonic/$MNEMONIC/" config.json
+sed -i "s~nodeRpc~$RPC_URL~" config.json
 
 # Step 7: Make the init.config script executable and run it
 echo "Making init.config executable and running it..."
