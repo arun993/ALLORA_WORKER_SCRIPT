@@ -5,41 +5,32 @@ echo "Updating system and installing required packages..."
 sudo apt-get update && sudo apt-get upgrade -y
 sudo apt-get install -y git docker.io docker-compose
 
-# Step 1: Git clone the repository
-echo "Cloning the Allora offchain node repository..."
-git clone https://github.com/allora-network/allora-offchain-node.git
+# Step 1: Clone the repository
+git clone https://github.com/allora-network/allora-offchain-node
 
-# Step 2: Navigate to the cloned directory
-cd allora-offchain-node || { echo "Failed to navigate to allora-offchain-node directory"; exit 1; }
+# Step 2: Change to the cloned directory
+cd allora-offchain-node
 
-# Step 3: Create the config.json file
-echo "Creating config.json file..."
-touch config.json
+# Step 3: Copy the example config to config.json
+cp config.example.json config.json
 
-# Step 4: Download the config.example.json and save it as config.json
-echo "Downloading config.example.json and copying to config.json..."
-wget https://raw.githubusercontent.com/allora-network/allora-offchain-node/dev/config.example.json -O config.json
+# Step 4: Get user input for the required fields
+read -p "Enter the address key name (addressKeyName): " addressKeyName
+read -p "Enter the address restore mnemonic (addressRestoreMnemonic): " addressRestoreMnemonic
+nodeRpc="https://sentries-rpc.testnet-1.testnet.allora.network/"
 
-# Step 5: Get user input for wallet name, mnemonic, and RPC URL
-echo "Please enter your wallet name:"
-read WALLET_NAME
-echo "Please enter your mnemonic:"
-read MNEMONIC
-RPC_URL="https://sentries-rpc.testnet-1.testnet.allora.network/"
+# Step 5: Edit config.json with user input
+sed -i "s/\"addressKeyName\": \"\"/\"addressKeyName\": \"$addressKeyName\"/g" config.json
+sed -i "s/\"addressRestoreMnemonic\": \"\"/\"addressRestoreMnemonic\": \"$addressRestoreMnemonic\"/g" config.json
+sed -i "s#\"nodeRpc\": \"\"#\"nodeRpc\": \"$nodeRpc\"#g" config.json
 
-# Step 6: Modify the placeholders in config.json
-echo "Replacing placeholders in config.json..."
-sed -i "s/addressKeyName/$WALLET_NAME/" config.json
-sed -i "s/addressRestoreMnemonic/$MNEMONIC/" config.json
-sed -i "s~nodeRpc~$RPC_URL~" config.json
-
-# Step 7: Make the init.config script executable and run it
-echo "Making init.config executable and running it..."
+# Step 6: Load the config.json to environment
 chmod +x init.config
 ./init.config
 
-# Step 8: Build and run the Docker container
-echo "Building and running the Docker container..."
-docker-compose up --build
+# Step 7: Start a new screen session
+screen -S allora -dm bash -c 'docker compose up --build'
 
-echo "Worker node upgrade completed successfully!! Follow x.com/arun__993 for more ."
+# Step 8: Attach to the screen session (optional)
+echo "To attach to the screen session, run: screen -r allora"
+
